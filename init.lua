@@ -1,3 +1,12 @@
+-- (C) 2016 Tai "DuCake" Kedzierski
+
+-- This program is Free Software, you can modify and redistribute it as long as
+-- that you provide the same rights to whomever you provide the original or
+-- modified version of the software to, and provide the source to whomever you
+-- distribute the software to.
+-- Released under the terms of the GPLv3
+
+
 local bbattle = {}
 
 bbattle.radius = tonumber(minetest.setting_get("buildbattle.radius") ) or 7
