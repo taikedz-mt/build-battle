@@ -1,0 +1,8 @@
+default
+flowers
+stairs
+wool
+walls
+vessels
+xpanes
+doors
