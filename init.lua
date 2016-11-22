@@ -43,7 +43,6 @@ end
 local function deepclone (t) -- deep-copy a table -- from https://gist.github.com/MihailJP/3931841
 	if type(t) ~= "table" then return t end
 
-	local meta = getmetatable(t)
 	local target = {}
 	
 	for k, v in pairs(t) do
@@ -53,7 +52,6 @@ local function deepclone (t) -- deep-copy a table -- from https://gist.github.co
 			target[k] = v
 		end
 	end
-	setmetatable(target, meta)
 	return target
 end 
 
