@@ -87,31 +87,4 @@ minetest.register_node("build_battle:marker", {
 	groups = {cracky = 3}
 })
 
-minetest.register_privilege("bbattle_moderator","Lookup build battle blocks")
-minetest.register_chatcommand("bbsearch",{
-	privs = "bbattle_moderator",
-	func = function(player,paramlist)
-		local piterator = paramlist:gmatch("%S+")
-		local paramt = {}
-		while true do
-			local param = piterator()
-			if param ~= nil then
-				paramt[#paramt+1] = param
-			else
-				break
-			end
-		end
-		for node,def in pairs(minetest.registered_nodes) do
-			if node:find("build_battle:") then
-				local found = true
-				for _,param in pairs(paramt) do
-					if not node:find(param) then
-						found = false
-					end
-					if not found then break end
-				end
-				if found then minetest.chat_send_player(player,"-> "..node) end
-			end
-		end
-	end,
-})
+dofile(minetest.get_modpath("build_battle").."/commands.lua")
