@@ -6,7 +6,27 @@ local giveplayer = function(playername,itemdef)
 		minetest.chat_send_player(playername,"No such item! Try using /bbsearch to find an item name")
 		return
 	end
+	if itemdef.name == "build_battle:marker" then return end
 
+	local user = minetest.get_player_by_name(playername)
+
+	local inventory = user:get_inventory()
+	for idx,x in pairs(inventory:get_list("main") ) do
+		if itemdef.count < 1 then break end
+
+		if x:get_name() == "" or x:get_name() == itemdef.name then
+			local count = x:get_count() + itemdef.count
+			if count > 99 then
+				itemdef.count = count - 99
+				count = 99
+			else
+				itemdef.count = 0
+			end
+			x:set_count(count)
+			x:set_name(itemdef.name)
+			inventory:set_stack("main",idx,x)
+		end
+	end
 
 end
 
@@ -15,7 +35,7 @@ minetest.register_chatcommand("bbgiveme",{
 	func = function(playername,paramlist)
 		local piterator = paramlist:gmatch("%S+")
 		local item = {}
-		local item.count = 1
+		item.count = 1
 
 		local param = piterator()
 		if param ~= nil then
@@ -56,7 +76,7 @@ minetest.register_chatcommand("bbsearch",{
 			end
 		end
 		for node,def in pairs(minetest.registered_nodes) do
-			if node:find("build_battle:") then
+			if node:find("build_battle:") and node ~= "build_battle:marker" then
 				local found = true
 				for _,param in pairs(paramt) do
 					if not node:find(param) then
