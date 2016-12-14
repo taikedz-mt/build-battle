@@ -1,6 +1,6 @@
 minetest.register_privilege("bbattler","Access build battle commands")
 
-local giveplayer = function(playername,itemdef)
+bbattle.giveplayer = function(playername,itemdef)
 	local theitem = minetest.registered_nodes[itemdef.name]
 	if not theitem then
 		minetest.chat_send_player(playername,"No such item! Try using /bbsearch to find an item name")
@@ -58,7 +58,7 @@ minetest.register_chatcommand("bbgiveme",{
 		if not item.name:find("build_battle:") then
 			item.name = "build_battle:".. item.name -- allow shorthands
 		end
-		giveplayer(playername,item)
+		bbattle.giveplayer(playername,item)
 	end,
 })
 

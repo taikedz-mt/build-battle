@@ -7,7 +7,7 @@
 -- Released under the terms of the GPLv3
 
 
-local bbattle = {}
+bbattle = {}
 
 bbattle.radius = tonumber(minetest.setting_get("buildbattle.radius") ) or 7
 
@@ -72,8 +72,12 @@ for node,olddef in pairs(minetest.registered_nodes) do
 		local def = deepclone(olddef)
 		local oldonpplace = def.on_place
 		def.drops = battlize(def.drops)
-		def.description = def.description.." +"
+		local desc = def.description or "(nameless)"
+		def.description = desc.." +"
 		node = battlize(node)
+		
+		def.liquid_alternative_flowing = node:gsub("_source","_flowing")
+		def.liquid_alternative_source = node:gsub("_flowing","_source")
 
 		if def.groups == nil then def.groups = {} end
 		def.groups.not_in_creative_inventory = 1
@@ -88,3 +92,4 @@ minetest.register_node("build_battle:marker", {
 })
 
 dofile(minetest.get_modpath("build_battle").."/commands.lua")
+--dofile(minetest.get_modpath("build_battle").."/craftguide.lua")
