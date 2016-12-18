@@ -62,30 +62,40 @@ minetest.register_chatcommand("bbgiveme",{
 	end,
 })
 
+function bbattle.searchitem(self,paramlist)
+	local piterator = paramlist:gmatch("%S+")
+	local paramt = {}
+	local rest = {}
+	while true do
+		local param = piterator()
+		if param ~= nil then
+			paramt[#paramt+1] = param
+		else
+			break
+		end
+	end
+	for node,def in pairs(minetest.registered_nodes) do
+		if node:find("build_battle:") and node ~= "build_battle:marker" then
+			local found = true
+			for _,param in pairs(paramt) do
+				if not node:find(param) then
+					found = false
+				end
+				if not found then break end
+			end
+			if found then
+				rest[#rest+1] = node
+			end
+		end
+	end
+	return rest
+end
+
 minetest.register_chatcommand("bbsearch",{
 	privs = "bbattler",
 	func = function(player,paramlist)
-		local piterator = paramlist:gmatch("%S+")
-		local paramt = {}
-		while true do
-			local param = piterator()
-			if param ~= nil then
-				paramt[#paramt+1] = param
-			else
-				break
+			for _,node in pairs( bbattle:searchitem(paramlist) ) do
+				minetest.chat_send_player(player,"-> "..node)
 			end
-		end
-		for node,def in pairs(minetest.registered_nodes) do
-			if node:find("build_battle:") and node ~= "build_battle:marker" then
-				local found = true
-				for _,param in pairs(paramt) do
-					if not node:find(param) then
-						found = false
-					end
-					if not found then break end
-				end
-				if found then minetest.chat_send_player(player,"-> "..node) end
-			end
-		end
 	end,
 })
