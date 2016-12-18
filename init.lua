@@ -9,7 +9,18 @@
 
 bbattle = {}
 
-bbattle.radius = tonumber(minetest.setting_get("buildbattle.radius") ) or 7
+bbattle.radius = tonumber(minetest.setting_get("buildbattle.radius") ) or 16
+bbattle.mods = minetest.setting_get("buildbattle.mods") or "default,flowers,bones,doors,farming,stairs,vessels,walls,xpanes"
+bbattle.mods = bbattle.mods:split(",")
+
+local function is_in_array(item,array)
+	for k,v in pairs(array) do
+		if v == item then
+			return true
+		end
+	end
+	return false
+end
 
 local is_in_bbfield = function(pos)
 	local mcount = minetest.find_nodes_in_area(
@@ -68,7 +79,9 @@ end
 )
 
 for node,olddef in pairs(minetest.registered_nodes) do
-	if not node:find("build_battle:") then
+	local nodeparts = node:split(":")
+	if not node:find("build_battle:") and is_in_array(nodeparts[1],bbattle.mods) then
+		
 		local def = deepclone(olddef)
 		local oldonpplace = def.on_place
 		def.drop = battlize(def.drop)
