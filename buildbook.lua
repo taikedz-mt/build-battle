@@ -52,6 +52,14 @@ local function generate_form(player,searchterm)
 		value = searchterm,
 	})
 
+	formspeccer:add_button(thebook,{
+		xy = "8,1",
+		wh = "2,1",
+		name = "label",
+		label = "Search"
+	},
+	true)
+
 	local searchresult = {}
 	if searchterm ~= "" then
 		searchresult = bbattle:searchitem(searchterm)
