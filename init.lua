@@ -30,8 +30,8 @@ local battlize = function(name)
 		return battlefy(name)
 	elseif type(name) == "table" then
 		local newnames = {}
-		for key,value in paris(name) do
-			newnames[key] = battlefy(value)
+		for key,value in pairs(name) do
+			newnames[#newnames+1] = battlefy(key)
 		end
 		return newnames
 	else
@@ -71,16 +71,19 @@ for node,olddef in pairs(minetest.registered_nodes) do
 	if not node:find("build_battle:") then
 		local def = deepclone(olddef)
 		local oldonpplace = def.on_place
-		def.drops = battlize(def.drops)
+		def.drop = battlize(def.drop)
 		local desc = def.description or "(nameless)"
 		def.description = desc.." +"
 		node = battlize(node)
 		
-		def.liquid_alternative_flowing = node:gsub("_source","_flowing")
-		def.liquid_alternative_source = node:gsub("_flowing","_source")
+		if def.drawtype == "liquid" then
+			def.liquid_alternative_flowing = node:gsub("_source","_flowing")
+			def.liquid_alternative_source = node:gsub("_flowing","_source")
+		end
 
 		if def.groups == nil then def.groups = {} end
 		def.groups.not_in_creative_inventory = 1
+
 		minetest.register_node(node,def)
 	end
 end
@@ -92,4 +95,4 @@ minetest.register_node("build_battle:marker", {
 })
 
 dofile(minetest.get_modpath("build_battle").."/commands.lua")
---dofile(minetest.get_modpath("build_battle").."/craftguide.lua")
+dofile(minetest.get_modpath("build_battle").."/buildbook.lua")
