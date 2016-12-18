@@ -13,29 +13,6 @@ local function drill_image(item)
 	return nil
 end
 
-local function get_image(nodedef)
-	if not nodedef then
-		return
-	end
-
-	if nodedef.inventory_image ~= "" then
-		return nodedef.inventory_image
-	elseif nodedef.wield_image ~= "" then
-		return nodedef.wield_image
-	elseif nodedef.tiles and #nodedef.tiles > 0 then
-		local invimage = nodedef.tiles[1]
-		if nodedef.drawtype == nil or drawtype == "normal" then
-			local tile1 = nodedef.tiles[1]
-			local tile2 = nodedef.tiles[2] or tile1
-			local tile3 = nodedef.tiles[3] or tile2
-			invimage = minetest.inventorycube(tile1,tile2,tile3)
-
-			invimage = tile3 -- FIXME shim before I can figure out why the inventory cube causes buttons to not display at all
-		end
-		return drill_image(invimage)
-	end
-end
-
 local function generate_form(player,searchterm)
 	if not searchterm then
 		searchterm = ""
@@ -53,12 +30,21 @@ local function generate_form(player,searchterm)
 	})
 
 	formspeccer:add_button(thebook,{
-		xy = "8,1",
+		xy = "8,0.65",
 		wh = "2,1",
 		name = "label",
 		label = "Search"
 	},
 	true)
+
+	formspeccer:add_button(thebook,{
+		xy = "5,9",
+		wh = "2,1",
+		name = "exit",
+		value = "OK",
+		label = "Quit",
+	},
+	true) -- is exit button
 
 	local searchresult = {}
 	if searchterm ~= "" then
@@ -80,14 +66,6 @@ local function generate_form(player,searchterm)
 				})
 			end
 		end
-		formspeccer:add_button(thebook,{
-			xy = "5,9",
-			wh = "2,1",
-			name = "exit",
-			value = "OK",
-			label = "Quit",
-		},
-		true) -- is exit button
 	else
 		formspeccer:add_label(thebook,{
 			xy = "1,3",
