@@ -91,7 +91,7 @@ end
 minetest.register_node("build_battle:marker", {
 	description = "Build Battle Marker",
 	tiles = {"default_stone.png^default_tool_diamondsword.png"},
-	groups = {cracky = 3}
+	groups = {unbreakable = 1}
 })
 
 dofile(minetest.get_modpath("build_battle").."/commands.lua")
