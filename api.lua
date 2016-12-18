@@ -1,4 +1,3 @@
-minetest.register_privilege("bbattler","Access build battle commands")
 
 bbattle.giveplayer = function(playername,itemdef)
 	local theitem = minetest.registered_nodes[itemdef.name]
@@ -30,38 +29,6 @@ bbattle.giveplayer = function(playername,itemdef)
 
 end
 
-minetest.register_chatcommand("bbgiveme",{
-	privs = "bbattler",
-	func = function(playername,paramlist)
-		local piterator = paramlist:gmatch("%S+")
-		local item = {}
-		item.count = 1
-
-		local param = piterator()
-		if param ~= nil then
-			item.name = param
-		else
-			minetest.chat_send_player(playername,"No item specified")
-			return
-		end
-		
-		param = piterator()
-		if param ~= nil then
-			if param:match("^[0-9]+$") then
-				item.count = tonumber(param)
-			else
-				minetest.chat_send_player(playername,"Not a number ".. param)
-				return
-			end
-		end
-
-		if not item.name:find("build_battle:") then
-			item.name = "build_battle:".. item.name -- allow shorthands
-		end
-		bbattle.giveplayer(playername,item)
-	end,
-})
-
 function bbattle.searchitem(self,paramlist)
 	local piterator = paramlist:gmatch("%S+")
 	local paramt = {}
@@ -90,12 +57,3 @@ function bbattle.searchitem(self,paramlist)
 	end
 	return rest
 end
-
-minetest.register_chatcommand("bbsearch",{
-	privs = "bbattler",
-	func = function(player,paramlist)
-			for _,node in pairs( bbattle:searchitem(paramlist) ) do
-				minetest.chat_send_player(player,"-> "..node)
-			end
-	end,
-})

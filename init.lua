@@ -107,5 +107,5 @@ minetest.register_node("build_battle:marker", {
 	groups = {unbreakable = 1}
 })
 
-dofile(minetest.get_modpath("build_battle").."/commands.lua")
+dofile(minetest.get_modpath("build_battle").."/api.lua")
 dofile(minetest.get_modpath("build_battle").."/buildbook.lua")
