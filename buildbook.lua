@@ -99,6 +99,7 @@ minetest.register_on_player_receive_fields(function(player,formname,fields)
 		end
 		if giveitem then
 			minetest.debug("Giving "..giveitem)
+			minetest.chat_send_player(player:get_player_name(), "Giving "..giveitem)
 			bbattle.giveplayer(player:get_player_name(), {name=giveitem, count = 99})
 		end
 	end
