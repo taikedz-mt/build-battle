@@ -1,5 +1,6 @@
 local bbook = {}
 local playerpage = {}
+local playerlastsearch = {}
 
 local thebook = "build_battle:book"
 
@@ -15,10 +16,16 @@ local function drill_image(item)
 end
 
 local function generate_form(player,searchterm)
+	local playername = player:get_player_name()
 	if not searchterm then
 		searchterm = ""
-		playerpage[player:get_player_name()] = 1
+		playerpage[playername] = 1
+	else
+		if searchterm ~= playerlastsearch[playername] then
+			playerpage[playername] = 1
+		end
 	end
+	playerlastsearch[playername] = searchterm
 
 	-- results display size
 	local width = 12
@@ -59,7 +66,9 @@ local function generate_form(player,searchterm)
 	end
 
 	if #searchresult > 0 then -- TODO - make multi-page results
-		local skip = ( playerpage[player:get_player_name()] - 1 ) * pagesize
+		local skip = ( playerpage[playername] - 1 ) * pagesize
+		local reachedend = false
+
 		for i=0+skip,skip+pagesize-1 do -- build out buttons
 			idx = i+1
 			if searchresult[idx] then
@@ -73,6 +82,8 @@ local function generate_form(player,searchterm)
 					label = searchresult[idx],
 					item_name = searchresult[idx],
 				})
+			else
+				reachedend = true
 			end
 		end
 
@@ -80,25 +91,29 @@ local function generate_form(player,searchterm)
 			xy = "7,9",
 			wh = "2,1",
 			name = "label",
-			value = "Page "..tostring(playerpage[player:get_player_name()]),
-			label = "Page "..tostring(playerpage[player:get_player_name()]),
+			value = "Page "..tostring(playerpage[playername]),
+			label = "Page "..tostring(playerpage[playername]),
 		})
 
-		formspeccer:add_button(thebook,{
-			xy = "1,9",
-			wh = "2,1",
-			name = "prev",
-			value = "<",
-			label = " << ",
-		},true)
+		if playerpage[playername] > 1 then
+			formspeccer:add_button(thebook,{
+				xy = "1,9",
+				wh = "2,1",
+				name = "prev",
+				value = "<",
+				label = " << ",
+			},true)
+		end
 
-		formspeccer:add_button(thebook,{
-			xy = "3,9",
-			wh = "2,1",
-			name = "next",
-			value = ">",
-			label = " >> ",
-		},true)
+		if not reachedend then
+			formspeccer:add_button(thebook,{
+				xy = "3,9",
+				wh = "2,1",
+				name = "next",
+				value = ">",
+				label = " >> ",
+			},true)
+		end
 
 	else
 		formspeccer:add_label(thebook,{
@@ -117,18 +132,19 @@ local function generate_form(player,searchterm)
 end
 
 minetest.register_on_player_receive_fields(function(player,formname,fields)
+	local playername = player:get_player_name()
 	if formname ~= thebook then
 		return
 	end
 
 	if fields.quit and fields.searchterm and not fields.exit then
 		if fields.prev then
-			if playerpage[player:get_player_name()] > 1 then
-				playerpage[player:get_player_name()] = playerpage[player:get_player_name()] - 1
+			if playerpage[playername] > 1 then
+				playerpage[playername] = playerpage[playername] - 1
 			end
 		end
 		if fields.next then
-			playerpage[player:get_player_name()] = playerpage[player:get_player_name()] + 1
+			playerpage[playername] = playerpage[playername] + 1
 		end
 		generate_form(player, fields.searchterm)
 	else
@@ -141,8 +157,8 @@ minetest.register_on_player_receive_fields(function(player,formname,fields)
 		end
 		if giveitem then
 			minetest.debug("Giving "..giveitem)
-			minetest.chat_send_player(player:get_player_name(), "Giving "..giveitem)
-			bbattle.giveplayer(player:get_player_name(), {name=giveitem, count = 99})
+			minetest.chat_send_player(playername, "Giving "..giveitem)
+			bbattle.giveplayer(playername, {name=giveitem, count = 99})
 		end
 	end
 
