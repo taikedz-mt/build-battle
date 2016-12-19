@@ -100,7 +100,6 @@ for node,olddef in pairs(minetest.registered_nodes) do
 		if def.groups == nil then def.groups = {} end
 		def.groups.not_in_creative_inventory = 1
 
-		minetest.debug("Registering "..node)
 		minetest.register_node(node,def)
 	end
 end
