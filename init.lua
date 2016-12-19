@@ -10,7 +10,7 @@
 bbattle = {}
 
 bbattle.radius = tonumber(minetest.setting_get("buildbattle.radius") ) or 16
-bbattle.mods = minetest.setting_get("buildbattle.mods") or "default,flowers,bones,doors,farming,stairs,vessels,walls,xpanes"
+bbattle.mods = minetest.setting_get("buildbattle.mods") or "default,flowers,bones,doors,farming,stairs,vessels,walls,xpanes,moreblocks,moretrees"
 bbattle.mods = bbattle.mods:split(",")
 
 local function is_in_array(item,array)
@@ -82,12 +82,15 @@ for node,olddef in pairs(minetest.registered_nodes) do
 	local nodeparts = node:split(":")
 	if not node:find("build_battle:") and is_in_array(nodeparts[1],bbattle.mods) then
 		
+		node = battlize(node)
 		local def = deepclone(olddef)
 		local oldonpplace = def.on_place
 		def.drop = battlize(def.drop)
+		if def.drop == nil then
+			def.drop = node
+		end
 		local desc = def.description or "(nameless)"
 		def.description = desc.." +"
-		node = battlize(node)
 		
 		if def.drawtype == "liquid" then
 			def.liquid_alternative_flowing = node:gsub("_source","_flowing")
@@ -97,6 +100,7 @@ for node,olddef in pairs(minetest.registered_nodes) do
 		if def.groups == nil then def.groups = {} end
 		def.groups.not_in_creative_inventory = 1
 
+		minetest.debug("Registering "..node)
 		minetest.register_node(node,def)
 	end
 end
