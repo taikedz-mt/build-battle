@@ -66,8 +66,6 @@ local function generate_form(player,searchterm)
 				local x = i % width
 				local y = math.floor((i - i % width) / width ) % height +2
 
-				minetest.debug("Adding "..tostring(i).." : "..searchresult[idx].. " to "..tostring(x)..","..tostring(y))
-
 				formspeccer:add_item_button(thebook,{
 					xy = x..","..y,
 					wh = "1,1",
