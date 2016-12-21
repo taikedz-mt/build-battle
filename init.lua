@@ -78,21 +78,21 @@ minetest.register_on_placenode( function(pos, newnode, placer, oldnode, itemstac
 end
 )
 
-for node,olddef in pairs(minetest.registered_nodes) do
-	local nodeparts = node:split(":")
-	if not node:find("build_battle:") and is_in_array(nodeparts[1],bbattle.mods) then
+for oldnode,olddef in pairs(minetest.registered_nodes) do
+	local nodeparts = oldnode:split(":")
+	if not oldnode:find("build_battle:") and is_in_array(nodeparts[1],bbattle.mods) then
 		
-		node = battlize(node)
+		local node = battlize(oldnode)
 		local def = deepclone(olddef)
 		local oldonpplace = def.on_place
-		def.drop = battlize(def.drop)
-		if def.drop == nil then
-			def.drop = node
-		end
-		local desc = def.description or "(nameless)"
+
+		def.on_place = nil -- Defining on_place prevents on_placenode handlers from being called
+
+		def.drop = node
+		local desc = def.description or "("..oldnode..")"
 		def.description = desc.." +"
 		
-		if def.drawtype == "liquid" then
+		if def.liquid_alternative_flowing or def.liquid_alternative_source then
 			def.liquid_alternative_flowing = node:gsub("_source","_flowing")
 			def.liquid_alternative_source = node:gsub("_flowing","_source")
 		end
