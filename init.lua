@@ -9,7 +9,7 @@
 
 bbattle = {}
 
-bbattle.radius = tonumber(minetest.setting_get("buildbattle.radius") ) or 16
+bbattle.radius = tonumber(minetest.setting_get("buildbattle.radius") ) or 16 -- NE PAS modifier ici - modifier le minetest.conf
 bbattle.mods = minetest.setting_get("buildbattle.mods") or "default,flowers,bones,doors,farming,stairs,vessels,walls,xpanes,moreblocks,moretrees"
 bbattle.mods = bbattle.mods:split(",")
 
@@ -84,7 +84,6 @@ for oldnode,olddef in pairs(minetest.registered_nodes) do
 		
 		local node = battlize(oldnode)
 		local def = deepclone(olddef)
-		local oldonpplace = def.on_place
 
 		def.on_place = nil -- Defining on_place prevents on_placenode handlers from being called
 
@@ -101,6 +100,9 @@ for oldnode,olddef in pairs(minetest.registered_nodes) do
 		def.groups.not_in_creative_inventory = 1
 
 		minetest.register_node(node,def)
+		if not minetest.registered_nodes[node] then
+			minetest.log("info", "BB - Failed to register "..node) -- not error, these may show in client window
+		end
 	end
 end
 
@@ -112,3 +114,4 @@ minetest.register_node("build_battle:marker", {
 
 dofile(minetest.get_modpath("build_battle").."/api.lua")
 dofile(minetest.get_modpath("build_battle").."/buildbook.lua")
+dofile(minetest.get_modpath("build_battle").."/areas.lua")
