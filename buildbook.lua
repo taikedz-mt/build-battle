@@ -78,8 +78,8 @@ local function generate_form(player,searchterm)
 				formspeccer:add_item_button(thebook,{
 					xy = x..","..y,
 					wh = "1,1",
-					name = "giveitem"..tostring(i),
-					label = searchresult[idx],
+					name = searchresult[idx],
+					label = "",
 					item_name = searchresult[idx],
 				})
 			else
@@ -150,8 +150,8 @@ minetest.register_on_player_receive_fields(function(player,formname,fields)
 	else
 		local giveitem = nil
 		for key,value in pairs(fields) do
-			if key:find("giveitem") then
-				giveitem = value
+			if key:find("build_battle:") then
+				giveitem = key
 				break
 			end
 		end
