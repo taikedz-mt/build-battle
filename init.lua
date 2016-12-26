@@ -10,8 +10,12 @@
 bbattle = {}
 
 bbattle.radius = tonumber(minetest.setting_get("buildbattle.radius") ) or 16 -- NE PAS modifier ici - modifier le minetest.conf
-bbattle.mods = minetest.setting_get("buildbattle.mods") or "default,flowers,bones,doors,farming,stairs,vessels,walls,xpanes,moreblocks,moretrees"
+bbattle.mods = minetest.setting_get("buildbattle.mods") or "default,flowers,bones,doors,"..
+	"farming,stairs,vessels,walls,xpanes,moreblocks,moretrees,moreores"
+bbattle.forbidden = minetest.setting_get("buildbattle.forbidden") or "moreblocks:circular_saw,default:book_closed,default:book_open"
+
 bbattle.mods = bbattle.mods:split(",")
+bbattle.forbidden = bbattle.forbidden:split(",")
 
 local function is_in_array(item,array)
 	for k,v in pairs(array) do
@@ -31,6 +35,7 @@ local is_in_bbfield = function(pos)
 
 	return #mcount > 0
 end
+
 
 local battlefy = function(name)
 	return "build_battle:"..name:gsub(":","_")
@@ -80,7 +85,9 @@ end
 
 for oldnode,olddef in pairs(minetest.registered_nodes) do
 	local nodeparts = oldnode:split(":")
-	if not oldnode:find("build_battle:") and is_in_array(nodeparts[1],bbattle.mods) then
+	if not oldnode:find("build_battle:")
+			and is_in_array(nodeparts[1],bbattle.mods)
+			and not is_in_array(oldnode,bbattle.forbidden) then
 		
 		local node = battlize(oldnode)
 		local def = deepclone(olddef)
