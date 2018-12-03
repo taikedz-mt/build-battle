@@ -9,7 +9,8 @@
 
 bbattle = {}
 
-bbattle.radius = tonumber(minetest.setting_get("buildbattle.radius") ) or 16 -- NE PAS modifier ici - modifier le minetest.conf
+bbattle.radius = tonumber(minetest.setting_get("buildbattle.radius") ) or 16
+
 bbattle.mods = minetest.setting_get("buildbattle.mods") or "default,flowers,bones,doors,"..
 	"farming,stairs,vessels,walls,xpanes,moreblocks,moretrees,moreores"
 bbattle.forbidden = minetest.setting_get("buildbattle.forbidden") or "moreblocks:circular_saw,default:book_closed,default:book_open"
@@ -22,7 +23,6 @@ dofile(minetest.get_modpath("build_battle").."/forceloads.lua")
 local allowed_groups = {
         'attached_node',
         'dig_immediate',
-        'attached_node',
         'oddly_breakable_by_hand',
         'cracky',
         'crumbly',
@@ -129,8 +129,6 @@ for oldnode,olddef in pairs(minetest.registered_nodes) do
 		local node = battlize(oldnode)
 		local def = deepclone(olddef)
 
-		def.on_place = nil -- Defining on_place prevents on_placenode handlers from being called
-
 		def.drop = node
 		local desc = def.description or "("..oldnode..")"
 		def.description = desc.." +"
@@ -143,13 +141,13 @@ for oldnode,olddef in pairs(minetest.registered_nodes) do
 		def.groups = sanitize_groups(def.groups)
 		def.groups.not_in_creative_inventory = 1
 
-		def.forspec = nil
-		def.on_place = nil
+		def.formspec = nil
+		def.on_place = nil -- Defining on_place prevents on_placenode handlers from being called
 		def.on_righclick = nil
 
 		minetest.register_node(node,def)
 		if not minetest.registered_nodes[node] then
-			minetest.log("info", "BB - Failed to register "..node) -- not error, these may show in client window
+			minetest.log("info", "BB - Failed to register "..node) -- use "info" log level, as "error" level would get sent to clients
 		end
 	end
 end
@@ -163,4 +161,3 @@ minetest.register_node("build_battle:marker", {
 dofile(minetest.get_modpath("build_battle").."/api.lua")
 dofile(minetest.get_modpath("build_battle").."/buildbook.lua")
 dofile(minetest.get_modpath("build_battle").."/areas.lua")
-dofile(minetest.get_modpath("build_battle").."/overrides.lua")
