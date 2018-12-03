@@ -158,7 +158,7 @@ minetest.register_on_player_receive_fields(function(player,formname,fields)
 		if giveitem then
 			minetest.debug("Giving "..giveitem)
 			minetest.chat_send_player(playername, "Giving "..giveitem)
-			bbattle.giveplayer(playername, {name=giveitem, count = 99})
+			bbattle:giveplayer(playername, {name=giveitem, count = 99})
 		end
 	end
 

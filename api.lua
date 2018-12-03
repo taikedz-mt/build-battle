@@ -1,5 +1,5 @@
 
-bbattle.giveplayer = function(playername,itemdef)
+function bbattle.giveplayer(self, playername, itemdef)
 	local theitem = minetest.registered_nodes[itemdef.name]
 	if not theitem then
 		minetest.chat_send_player(playername,"No such item! Try using /bbsearch to find an item name")
@@ -29,7 +29,7 @@ bbattle.giveplayer = function(playername,itemdef)
 
 end
 
-function bbattle.searchitem(self,paramlist)
+function bbattle.searchitem(self, paramlist)
 	local piterator = paramlist:gmatch("%S+")
 	local paramt = {}
 	local rest = {}
