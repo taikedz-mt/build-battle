@@ -17,6 +17,17 @@ bbattle.forbidden = minetest.setting_get("buildbattle.forbidden") or "moreblocks
 bbattle.mods = bbattle.mods:split(",")
 bbattle.forbidden = bbattle.forbidden:split(",")
 
+local allowed_groups = {
+        'attached_node',
+        'dig_immediate',
+        'attached_node',
+        'oddly_breakable_by_hand',
+        'cracky',
+        'crumbly',
+        'choppy',
+        'snappy',
+}
+
 local function is_in_array(item,array)
 	for k,v in pairs(array) do
 		if v == item then
@@ -26,7 +37,7 @@ local function is_in_array(item,array)
 	return false
 end
 
-local is_in_bbfield = function(pos)
+bbattle.is_in_bbfield = function(pos)
 	local mcount = minetest.find_nodes_in_area(
 	{x=pos.x-bbattle.radius,y=pos.y-bbattle.radius,z=pos.z-bbattle.radius},
 	{x=pos.x+bbattle.radius,y=pos.y+bbattle.radius,z=pos.z+bbattle.radius},
@@ -71,11 +82,23 @@ local function deepclone (t) -- deep-copy a table -- from https://gist.github.co
 	return target
 end 
 
+local function sanitize_groups(def)
+        local newdef = {}
+        if not def then return {} end
+
+        for _,level in pairs(allowed_groups) do
+                newdef[level] = def[level]
+        end
+
+        return newdef
+end
+
+
 minetest.register_on_placenode( function(pos, newnode, placer, oldnode, itemstack, pointed_thing)
 	local node = newnode.name
 	if not node:find("build_battle:") then return end
 
-	if not is_in_bbfield(pos) then
+	if not bbattle.is_in_bbfield(pos) then
 		minetest.chat_send_player(placer:get_player_name(),node.." can only be placed in a Build Battle Arena!")
 		minetest.swap_node(pos,{name = oldnode.name})
 		return true
@@ -103,8 +126,12 @@ for oldnode,olddef in pairs(minetest.registered_nodes) do
 			def.liquid_alternative_source = node:gsub("_flowing","_source")
 		end
 
-		if def.groups == nil then def.groups = {} end
+		def.groups = sanitize_groups(def.groups)
 		def.groups.not_in_creative_inventory = 1
+
+		def.forspec = nil
+		def.on_place = nil
+		def.on_righclick = nil
 
 		minetest.register_node(node,def)
 		if not minetest.registered_nodes[node] then
@@ -122,3 +149,4 @@ minetest.register_node("build_battle:marker", {
 dofile(minetest.get_modpath("build_battle").."/api.lua")
 dofile(minetest.get_modpath("build_battle").."/buildbook.lua")
 dofile(minetest.get_modpath("build_battle").."/areas.lua")
+dofile(minetest.get_modpath("build_battle").."/overrides.lua")
