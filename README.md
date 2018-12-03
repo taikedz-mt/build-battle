@@ -22,3 +22,11 @@ Give build battle moderators the `bbattle_moderator` and `give` privileges so th
 2. Give contestants the blocks for building
 
 That's it. Contestants will not be able to place the blocks far away from the markers, not derive items from the build battle nodes.
+
+## Forceloading
+
+Marker blocks cause the position they are located at to be forceloaded.
+
+Without it, if you set a large radius (say, 30), your server may start unloading blocks when the player is away - if they're far away from the marker, it gets unloaded from memory - and the build_battle blocks can no longer be placed, as there apparently isn't any marker.
+
+You can run `/bbattle_showfl` to see all the forceload locations set in this way, and `/bbattle_clearfl` to clear any that no longer have a marker block at the specified location.

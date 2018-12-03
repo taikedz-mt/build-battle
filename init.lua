@@ -17,6 +17,8 @@ bbattle.forbidden = minetest.setting_get("buildbattle.forbidden") or "moreblocks
 bbattle.mods = bbattle.mods:split(",")
 bbattle.forbidden = bbattle.forbidden:split(",")
 
+dofile(minetest.get_modpath("build_battle").."/forceloads.lua")
+
 local allowed_groups = {
         'attached_node',
         'dig_immediate',
@@ -93,13 +95,25 @@ local function sanitize_groups(def)
         return newdef
 end
 
+local function mark_forceload(pos, nodename)
+	minetest.debug("Checking forceload "..nodename)
+	if nodename == "build_battle:marker" then
+		minetest.debug("Registering forceload on "..nodename.." at "..minetest.pos_to_string(pos))
+		bbattle.register_forceload(pos)
+	end
+end
 
 minetest.register_on_placenode( function(pos, newnode, placer, oldnode, itemstack, pointed_thing)
 	local node = newnode.name
 	if not node:find("build_battle:") then return end
 
+	mark_forceload(pos, node)
+
 	if not bbattle.is_in_bbfield(pos) then
-		minetest.chat_send_player(placer:get_player_name(),node.." can only be placed in a Build Battle Arena!")
+		minetest.chat_send_player(
+			placer:get_player_name(),
+			node.." can only be placed in a Build Battle Arena!"
+			)
 		minetest.swap_node(pos,{name = oldnode.name})
 		return true
 	end
