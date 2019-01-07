@@ -23,10 +23,19 @@ Give build battle moderators the `bbattle_moderator` and `give` privileges so th
 
 That's it. Contestants will not be able to place the blocks far away from the markers, not derive items from the build battle nodes.
 
+## Settings
+
+* `buildbattle.radius` - How far from the marker Build Battle blocks can be placed, default `16`
+* `buildbattle.mods` - Mods to includein build battle. You also need to add these to the `depends.txt` of the mod so that they are loaded before Build Battle itself
+    * `default,butterflies,flowers,bones,beds,doors,fire,farming,stairs,farming,stairs,vessels,walls,wool,xpanes`
+* `buildbattle.forbidden` - Nodes that cannot be cloned, ever
+* `buildbattle.report_registration_failures` - whether to report registration failures to the log
+* `buildbattle.allow_hidden_inventory` - Items normally marked as `not_in_creative_inventory` are cloned to inventory items for BUild Battle
+
 ## Forceloading
 
-Marker blocks cause the position they are located at to be forceloaded.
+Marker blocks cause the position they are located at to be forceloaded when the radius is larger than 32.
 
-Without it, if you set a large radius (say, 30), your server may start unloading blocks when the player is away - if they're far away from the marker, it gets unloaded from memory - and the build_battle blocks can no longer be placed, as there apparently isn't any marker.
+Without it, if you set a large radius (say, 40), your server may start unloading blocks when the player is away - if they're far away from the marker, it gets unloaded from memory - and the `build_battle` blocks can no longer be placed, as no marker can be found by the check function.
 
 You can run `/bbattle_showfl` to see all the forceload locations set in this way, and `/bbattle_clearfl` to clear any that no longer have a marker block at the specified location.
