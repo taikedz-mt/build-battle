@@ -31,6 +31,7 @@ That's it. Contestants will not be able to place the blocks far away from the ma
 * `buildbattle.forbidden` - Nodes that cannot be cloned, ever
 * `buildbattle.report_registration_failures` - whether to report registration failures to the log
 * `buildbattle.allow_hidden_inventory` - Items normally marked as `not_in_creative_inventory` are cloned to inventory items for BUild Battle
+* `buildbattle.require_all` - If true, abort loading `build_battle` altogether. Default `false`
 
 ## Forceloading
 

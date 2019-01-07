@@ -22,6 +22,7 @@ local default_mods = {
     "walls",
     "wool",
     "xpanes",
+    "moreblocks",
 }
 
 local function stringjoin(t, sep)
@@ -38,13 +39,14 @@ bbattle = {}
 bbattle.radius = tonumber(minetest.settings:get("buildbattle.radius") ) or 16
 
 bbattle.mods = minetest.settings:get("buildbattle.mods") or stringjoin(default_mods,",")
-bbattle.forbidden = minetest.settings:get("buildbattle.forbidden") or "moreblocks:circular_saw,default:book_closed,default:book_open"
+bbattle.forbidden = minetest.settings:get("buildbattle.forbidden") or ""
 
 bbattle.mods = bbattle.mods:split(",")
 bbattle.forbidden = bbattle.forbidden:split(",")
 
 local notify_failures = minetest.settings:get_bool("buildbattle.report_registration_failures")
 local allow_hidden_inventory = minetest.settings:get_bool("buildbattle.allow_hidden_inventory")
+local require_all = minetest.settings:get_bool("buildbattle.require_all")
 
 dofile(minetest.get_modpath("build_battle").."/forceloads.lua")
 
@@ -150,6 +152,7 @@ local function nullify(def)
         "on_punch",
         "on_dig",
         "on_timer",
+        "on_use",
         "on_receive_fields",
         "allow_metadata_inventory_move",
         "allow_metadata_inventory_put",
@@ -165,14 +168,12 @@ local function nullify(def)
     return def
 end
 
---    Active Script Commences
-
 local function check_mods_loaded()
     local modname,_
     local all_mods_loaded = true
     for _,modname in ipairs(bbattle.mods) do
 
-        if not minetest.get_modpath(modname) then
+        if require_all and not minetest.get_modpath(modname) then
             minetest.log("error", "Build Battle: add mod or mod dependency: "..modname)
             all_mods_loaded = false
         end
@@ -180,6 +181,8 @@ local function check_mods_loaded()
 
     return all_mods_loaded
 end
+
+--    Active Script Commences
 
 if not check_mods_loaded() then
     minetest.log("error", "Dependencies were not met - aborting Build Battle registrations")
@@ -203,17 +206,22 @@ minetest.register_on_placenode( function(pos, newnode, placer, oldnode, itemstac
 end
 )
 
+local function should_register(oldnode, olddef, nodeparts)
+    return (not oldnode:find("build_battle:")
+        and is_in_array(nodeparts[1],bbattle.mods)
+        and not is_in_array(oldnode,bbattle.forbidden)
+        and not (                                       -- DISALLOW if
+            olddef.groups
+            and olddef.groups.not_in_creative_inventory -- CREATIVE denied
+            and not allow_hidden_inventory              -- and CREATIVE override denied
+        )
+)
+
+end
+
 for oldnode,olddef in pairs(minetest.registered_nodes) do
     local nodeparts = oldnode:split(":")
-    if not oldnode:find("build_battle:")
-            and is_in_array(nodeparts[1],bbattle.mods)
-            and not is_in_array(oldnode,bbattle.forbidden)
-            and not (                                       -- DISALLOW if
-                olddef.groups
-                and olddef.groups.not_in_creative_inventory -- CREATIVE denied
-                and not allow_hidden_inventory              -- and CREATIVE override denied
-            )
-            then
+    if should_register(oldnode, olddef, nodeparts) then
         
         local node = battlize(oldnode)
         local def = deepclone(olddef)
@@ -243,9 +251,7 @@ if notify_failures then
     minetest.after(0,function()
         for oldnode,olddef in pairs(minetest.registered_nodes) do
             local nodeparts = oldnode:split(":")
-            if not oldnode:find("build_battle:")
-                    and is_in_array(nodeparts[1],bbattle.mods)
-                    and not is_in_array(oldnode,bbattle.forbidden) then
+            if should_register(oldnode, olddef, nodeparts) then
                 local battlenode = battlize(oldnode)
 
                 if not minetest.registered_nodes[battlenode] then
