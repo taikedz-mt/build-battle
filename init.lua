@@ -6,13 +6,38 @@
 -- distribute the software to.
 -- Released under the terms of the GPLv3
 
+local default_mods = {
+    "default",
+    --"butterflies", -- not in older default game
+    "flowers",
+    "bones",
+    "beds",
+    "doors",
+    "fire",
+    "farming",
+    "stairs",
+    "farming",
+    "stairs",
+    "vessels",
+    "walls",
+    "wool",
+    "xpanes",
+}
+
+local function stringjoin(t, sep)
+    local final = ""
+    for _,v in ipairs(t) do
+        final = final..","..v
+    end
+    minetest.debug(final:sub(2))
+    return final:sub(2)
+end
 
 bbattle = {}
 
 bbattle.radius = tonumber(minetest.settings:get("buildbattle.radius") ) or 16
 
-bbattle.mods = minetest.settings:get("buildbattle.mods") or "default,butterflies,flowers,bones,beds,doors,fire,farming,stairs,"..
-    "farming,stairs,vessels,walls,wool,xpanes"
+bbattle.mods = minetest.settings:get("buildbattle.mods") or stringjoin(default_mods,",")
 bbattle.forbidden = minetest.settings:get("buildbattle.forbidden") or "moreblocks:circular_saw,default:book_closed,default:book_open"
 
 bbattle.mods = bbattle.mods:split(",")
@@ -94,10 +119,8 @@ local function sanitize_groups(def)
                 newdef[level] = def[level]
         end
 
-        if not newdef['dig_immediate'] then
-            -- Always easy to break by hand - this is a mini creative mode.
-            newdef['oddly_breakable_by_hand'] = 3
-        end
+        -- Always easy to break by hand - this is a mini creative mode.
+        newdef['dig_immediate'] = 3
 
         return newdef
 end
@@ -145,9 +168,9 @@ end
 --    Active Script Commences
 
 local function check_mods_loaded()
+    local modname,_
+    local all_mods_loaded = true
     for _,modname in ipairs(bbattle.mods) do
-        local modname,_
-        local all_mods_loaded = true
 
         if not minetest.get_modpath(modname) then
             minetest.log("error", "Build Battle: add mod or mod dependency: "..modname)
@@ -223,10 +246,11 @@ if notify_failures then
             if not oldnode:find("build_battle:")
                     and is_in_array(nodeparts[1],bbattle.mods)
                     and not is_in_array(oldnode,bbattle.forbidden) then
-            local battlenode = battlize(oldnode)
+                local battlenode = battlize(oldnode)
 
-            if not minetest.registered_nodes[battlenode] then
-                minetest.debug("Build Battle ---- "..battlenode.." failed registration!")
+                if not minetest.registered_nodes[battlenode] then
+                    minetest.debug("Build Battle ---- "..battlenode.." failed registration!")
+                end
             end
         end
     end)
